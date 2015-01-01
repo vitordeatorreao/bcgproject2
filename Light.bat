@@ -1,0 +1,1 @@
+java -Djava.library.path=lib-win64 -jar Light.jar

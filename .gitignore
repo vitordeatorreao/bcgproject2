@@ -1,0 +1,4 @@
+/bin
+.classpath
+/lib-unix64/*.so
+/lib-win64/*.dll
