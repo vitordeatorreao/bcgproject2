@@ -136,6 +136,10 @@ public class ScreenGL//
     	//
         createObject();
         gl.glFlush();
+        System.out.println("Camera: \nEye = ("+eyex+", "+eyey+", "+eyez+")\n"+
+        					"Center = ("+centerx+", "+centery+", "+centerz+
+        					")\n"+
+        					"Up Vector = ["+upx+", "+upy+", "+upz+")\n\n");
     }
 
 	private void createObject() {
@@ -160,20 +164,82 @@ public class ScreenGL//
     	if (distanceVector == null) {
     		return;
     	}
+    	Vertex oldCenter = new Vertex(new double[] {
+    			centerx, centery, centerz
+    	});
     	centerx += distanceVector.get(0);
     	centery += distanceVector.get(1);
+    	Vertex newCenter = new Vertex(new double[] {
+    			centerx, centery, centerz
+    	});
+    	Vector centerMov = newCenter.subtract(oldCenter);
+    	
+    	Vector upVector = new Vector(new double[] {
+    			upx, upy, upz
+    	});
+    	Vector upMov = upVector.add(centerMov);
+    	upMov = upMov.normalize();
+    	upx = upMov.get(0);
+    	upy = upMov.get(1);
+    	upz = upMov.get(2);
+    	
+    	distanceVector = null;
     	
 	}
 
 	private void calcXMov() {
-		centerx += xMov;
-		eyex += xMov;
+		if (xMov == 0) {
+			return;
+		}
+		Vertex center = new Vertex(new double[] {
+				centerx, centery, centerz
+		});
+		Vertex eye = new Vertex(new double[] {
+				eyex, eyey, eyez
+		});
+		Vector N = center.subtract(eye);
+		N = N.normalize();
+		Vector up = new Vector(new double[] {
+				upx, upy, upz
+		});
+		Vector U = N.vectorProduct(up);
+		if (xMov > 0) {
+			U = U.mult(-1.0);
+		}
+		eyex += U.get(0);
+		eyey += U.get(1);
+		eyez += U.get(2);
+		centerx += U.get(0);
+		centery += U.get(1);
+		centerz += U.get(2);
+		
 		xMov = 0;
 	}
 
 	private void calcZMov() {
-		centerz += zMov;
-		eyez += zMov;
+		if (zMov == 0) {
+			return;
+		}
+		Vertex center = new Vertex(new double[] {
+				centerx, centery, centerz
+		});
+		Vertex eye = new Vertex(new double[] {
+				eyex, eyey, eyez
+		});
+		Vector dis = center.subtract(eye);
+		dis = dis.normalize();
+		if (zMov > 0) {
+			//Pressed S
+			dis = dis.mult(-1.0);
+		}
+		
+		eyex += dis.get(0);
+		eyey += dis.get(1);
+		eyez += dis.get(2);
+		centerx += dis.get(0);
+		centery += dis.get(1);
+		centerz += dis.get(2);
+		
 		zMov = 0;
 	}
 
