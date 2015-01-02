@@ -83,14 +83,14 @@ public class SceneController {
 			}
 		}
 		bfr.close();
-		
-		/* Sort the triangles only if there are triangles AND
-		 * a camera has been instantiated 
-		 */
-		if (this.scene.getTriangles().size() > 0 && 
-				this.scene.getCamera() != null) {
-			this.scene.sortTriangles();
-		}
+//		
+//		/* Sort the triangles only if there are triangles AND
+//		 * a camera has been instantiated 
+//		 */
+//		if (this.scene.getTriangles().size() > 0 && 
+//				this.scene.getCamera() != null) {
+//			this.scene.sortTriangles();
+//		}
 	}
 	
 	/**
