@@ -1,12 +1,10 @@
 package net.letskit.redbook;
 
-import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import javax.media.opengl.awt.GLCanvas;
-import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLException;
 import javax.media.opengl.awt.GLJPanel;
 
@@ -154,7 +152,7 @@ public abstract class glskeleton //
     }//
     
     public static void main(String [] args){
-        glskeleton demo  = new glskeleton() {
+        new glskeleton() {
         };
     }
 }//
