@@ -87,6 +87,16 @@ public class Vector {
 		return new Vector(ds);
 	}
 	
+	public Vector rotate(double angle) {
+		double[] d = new double[] {
+			Math.cos(angle), 0, Math.sin(angle),
+			0, 1, 0,
+			-Math.sin(angle), 0, Math.cos(angle)
+		};
+		Matrix m = new Matrix(d, 3, 3);
+		return m.mult(this);
+	}
+	
 	/**
 	 * Returns a scalar resulting from the inner product of 
 	 * this <code>Vector</code> with another.
@@ -246,6 +256,12 @@ public class Vector {
 		Vector v3 = v1.normalize();
 		System.out.println("Normalizing Vector1 = "+v3);
 		System.out.println("new ||Vector1|| = "+v3.getNorm());
+		
+		Vector v4 = new Vector(new double[] {
+				0, 0, 1
+		});
+		System.out.println("Vector4 = "+v4.toString());
+		System.out.println("Rotated = "+v4.rotate(Math.PI/2).toString());
 	}
 
 }

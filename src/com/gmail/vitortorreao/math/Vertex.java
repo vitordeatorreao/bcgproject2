@@ -1,6 +1,6 @@
 package com.gmail.vitortorreao.math;
 
-//import com.gmail.vitordeatorreao.scene.Triangle;
+import com.gmail.vitortorreao.scene.Triangle;
 
 /**
  * This class implements 
@@ -142,14 +142,14 @@ public class Vertex {
 	 * @return true If the <code>Vertex</code> composes 
 	 * 				the <code>Triangle</code>
 	 */
-//	public boolean in(Triangle t) {
-//		for (Vertex v : t.getVertices()) {
-//			if (this.equals(v)) {
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
+	public boolean in(Triangle t) {
+		for (Vertex v : t.getVertices()) {
+			if (this.equals(v)) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	/**
 	 * Renders this <code>Vertex</code> in a <code>String</code>.

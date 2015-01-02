@@ -120,7 +120,6 @@ public class light//
     	gl.glMatrixMode(GL2.GL_MODELVIEW);
     	calcXMov();calcZMov();
     	calcRotation();
-    	calcOrbit();
     	gl.glLoadIdentity();
     	glu.gluLookAt(eyex, eyey, eyez, centerx, 
     			centery, centerz, upx, upy, upz);
@@ -129,19 +128,6 @@ public class light//
         glut.glutSolidSphere(1.0, 20, 20);
         gl.glFlush();
     }
-    
-    private void calcOrbit() {
-    	Vertex cameraPosition = new Vertex(new double[] {
-    			eyex, eyey, eyez
-    	});
-    	Vertex cameraFocus = new Vertex(new double[] {
-    			centerx, centery, centerz
-    	});
-    	double radius = cameraPosition.subtract(cameraFocus).getNorm();
-    	eyex = centerx + radius*Math.cos(phi)*Math.sin(theta);
-    	eyey = centery + radius*Math.sin(phi)*Math.sin(theta);
-    	eyez = centerz + radius*Math.cos(theta);
-	}
 
 	private void calcRotation() {
     	if (distanceVector == null) {
@@ -253,9 +239,9 @@ public class light//
 			mouseDown = MouseEvent.BUTTON1;
 			break;
 		case MouseEvent.BUTTON3:
-			oldx = click.getX();
-			oldy = click.getY();
-			mouseDown = MouseEvent.BUTTON3;
+//			oldx = click.getX();
+//			oldy = click.getY();
+//			mouseDown = MouseEvent.BUTTON3;
 			break;
 		default:
 			break;
@@ -294,12 +280,36 @@ public class light//
 			refresh();
 			break;
 		case MouseEvent.BUTTON3:
-			System.out.println("Orbit");
-			theta	+= (mouse.getX()-oldx)*MOUSE_ORBIT_SPEED;
-			phi		+= (mouse.getY()-oldy)*MOUSE_ORBIT_SPEED;
-			oldx = mouse.getX();
-			oldy = mouse.getY();
-			refresh();
+//			System.out.println("Orbit");
+//			int x = mouse.getX();
+//			int y = mouse.getY();
+//			Vertex center = new Vertex(new double[] {
+//					centerx, centery, centerz
+//			});
+//			Vertex eye = new Vertex(new double[] {
+//					eyex, eyey, eyez
+//			});
+//			Vertex newEyeX = new Vertex(new double[] {
+//					eyex + (x - oldx), eyey, eyez
+//			});
+//			Vertex newEyeY = new Vertex(new double[] {
+//					eyex, eyey + (y - oldy), eyez
+//			});			
+//			Vector oldVector = center.subtract(eye);
+//			Vector newVectorX = center.subtract(newEyeX);
+//			double sm = newVectorX.scalarMult(oldVector);
+//			double divd = newVectorX.getNorm()*oldVector.getNorm();
+//			double costheta = sm/divd;
+//			double angle = Math.acos(costheta);
+//			if (x > oldx) {
+//				//horario
+//				angle = - angle;
+//			}
+//			double[] newCamPos = oldVector.rotate(angle).getArray();
+//			eyex = centerx + newCamPos[0];
+//			eyey = centery + newCamPos[1];
+//			eyez = centerz + newCamPos[2];
+//			refresh();
 			break;
 		default:
 			break;
