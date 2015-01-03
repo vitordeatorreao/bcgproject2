@@ -2,23 +2,23 @@ package com.gmail.vitortorreao.screen;
 import net.letskit.redbook.glskeleton;
 
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.imageio.ImageIO;
 import javax.media.opengl.*;
 import javax.media.opengl.awt.*;
 import javax.media.opengl.glu.*;
-
-import jogamp.opengl.GLVersionNumber;
 
 import com.gmail.vitortorreao.math.Vector;
 import com.gmail.vitortorreao.math.Vertex;
 import com.gmail.vitortorreao.scene.NonConformantSceneFile;
 import com.gmail.vitortorreao.scene.SceneController;
 import com.gmail.vitortorreao.scene.Triangle;
-import com.jogamp.opengl.util.gl2.*;
 
 public class ScreenGL//
         extends glskeleton//
@@ -28,11 +28,14 @@ public class ScreenGL//
         , MouseMotionListener
 {
 	
+	private static ScreenGL screen;
+	private static JFrame frame;
+	private static GLJPanel canvas;
+	
 	private static final double Z_SPEED = 1.0;
 	private static final double X_SPEED = 1.0;
 	private static final double MOUSE_PAN_SPEED = 0.01;
 	
-    private GLUT glut;
     private GL2 gl;
 	private GLU glu;
 	
@@ -54,33 +57,155 @@ public class ScreenGL//
      * @author Kiet Le (Java conversion)
      */
     public ScreenGL() {
-    	try {
-			SceneController.getInstance().loadScene(new File("samples/vaso.byu"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NonConformantSceneFile e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//    	try {
+//			SceneController.getInstance().loadScene(new File("samples/calice2.byu"));
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (NonConformantSceneFile e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
     	
     }
     
     public static void main(String[] args) {
         GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
-        GLJPanel canvas = new GLJPanel(caps);
-        ScreenGL demo = new ScreenGL();
-        demo.setCanvas(canvas);
-        canvas.addGLEventListener(demo);
-        demo.setDefaultListeners(demo);
+        canvas = new GLJPanel(caps);
+        screen = new ScreenGL();
+        screen.setCanvas(canvas);
+        canvas.addGLEventListener(screen);
+        screen.setDefaultListeners(screen);
         
 //        JFrame.setDefaultLookAndFeelDecorated(true);
-        JFrame frame = new JFrame("Vitor Torreao's BCG Project 2");
+        frame = new JFrame("Vitor Torreao's BCG Project 2");
         frame.setSize(500, 500);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
         frame.getContentPane().add(canvas);
+        
+      //Create menu bar
+        JMenuBar menuBar = new JMenuBar();
+        ImageIcon appIcon;
+        ImageIcon openIcon;
+        ImageIcon saveIcon;
+        ImageIcon exitIcon;
+        try {
+        	appIcon = new ImageIcon(ScreenGL.class.getResource(
+        			"/com/gmail/vitortorreao/images/logo.png"));
+        	openIcon = new ImageIcon(ScreenGL.class.getResource(
+        			"/com/gmail/vitortorreao/images/open.png"));
+        	saveIcon = new ImageIcon(ScreenGL.class.getResource(
+        			"/com/gmail/vitortorreao/images/save.png"));
+        	exitIcon = new ImageIcon(ScreenGL.class.getResource(
+        			"/com/gmail/vitortorreao/images/exit.png"));
+        } catch (Exception e){
+        	appIcon = new ImageIcon("logo.png");
+        	openIcon = new ImageIcon("open.png");
+        	saveIcon = new ImageIcon("save.png");
+        	exitIcon = new ImageIcon("exit.png");
+        }
+        
+        frame.setIconImage(appIcon.getImage());
+        
+        JMenu file = new JMenu("File");
+        
+      //Create Open File Menu Item
+        JMenuItem openMenuItem = new JMenuItem("Open", openIcon);
+        openMenuItem.setToolTipText("Load objects from BYU files");
+        openMenuItem.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser openFile = new JFileChooser();
+				int returnVal = openFile.showOpenDialog(null);
+				
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = openFile.getSelectedFile();
+					try {
+						SceneController.getInstance().loadScene(file);
+						screen.refresh();
+					} catch (IOException | NonConformantSceneFile e) {
+						JOptionPane.showMessageDialog(frame, 
+								e.getMessage(), "Error while opening file", 
+								JOptionPane.ERROR_MESSAGE);
+					}
+				}
+				
+			}
+		});
+        
+      //Create Save menu item
+        JMenuItem saveMenuItem = new JMenuItem("Save", saveIcon);
+        saveMenuItem.setToolTipText("Save view into an image file");
+        saveMenuItem.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser saveFile = new JFileChooser();
+				saveFile.addChoosableFileFilter(new FileFilter() {
+					
+					@Override
+					public String getDescription() {
+						return "*.png, *.PNG";
+					}
+					
+					@Override
+					public boolean accept(File arg0) {
+						if (arg0.isDirectory()) {
+							return false;
+						}
+						String filename = arg0.getName();
+						return filename.endsWith(".png") || 
+								filename.endsWith(".PNG");
+					}
+				});
+				int returnVal = saveFile.showSaveDialog(null);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = saveFile.getSelectedFile();
+					if (!file.getName().endsWith(".png") && 
+							!file.getName().endsWith(".PNG")) {
+						file = new File(file.getAbsolutePath()+".png");
+					}
+					BufferedImage im = new BufferedImage(
+							canvas.getWidth(), 
+							canvas.getHeight(), 
+							BufferedImage.TYPE_INT_RGB);
+					canvas.paint(im.getGraphics());
+					
+					try {
+						ImageIO.write(im, "png", file);
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(frame, e.getMessage(), 
+								"Error while saving file", 
+								JOptionPane.ERROR_MESSAGE);
+					}
+				}
+				
+			}
+		});
+        
+      //Create Exit program menu item
+        JMenuItem exitMenuItem = new JMenuItem("Exit", exitIcon);
+        exitMenuItem.setToolTipText("Exit application");
+        exitMenuItem.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+				
+			}
+		});
+        
+      //Add menu items to Menu
+        file.add(openMenuItem);
+        file.add(saveMenuItem);
+        file.add(exitMenuItem);
+        
+        menuBar.add(file);
+        
+        frame.setJMenuBar(menuBar);
+        
         frame.setVisible(true);
         canvas.requestFocusInWindow();
     }
@@ -91,7 +216,6 @@ public class ScreenGL//
      */
     public void init(GLAutoDrawable drawable) {
         gl = drawable.getGL().getGL2();
-        glut = new GLUT();
         glu = new GLU();
         
         eyex = 0;
