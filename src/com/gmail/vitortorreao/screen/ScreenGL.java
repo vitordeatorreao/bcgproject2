@@ -16,7 +16,10 @@ import javax.media.opengl.glu.*;
 
 import com.gmail.vitortorreao.math.Vector;
 import com.gmail.vitortorreao.math.Vertex;
+import com.gmail.vitortorreao.scene.Camera;
+import com.gmail.vitortorreao.scene.Light;
 import com.gmail.vitortorreao.scene.NonConformantSceneFile;
+import com.gmail.vitortorreao.scene.Scene;
 import com.gmail.vitortorreao.scene.SceneController;
 import com.gmail.vitortorreao.scene.Triangle;
 
@@ -124,6 +127,8 @@ public class ScreenGL//
 					File file = openFile.getSelectedFile();
 					try {
 						SceneController.getInstance().loadScene(file);
+				        screen.loadCamera();
+				        screen.loadLight();
 						screen.refresh();
 					} catch (IOException | NonConformantSceneFile e) {
 						JOptionPane.showMessageDialog(frame, 
@@ -209,8 +214,8 @@ public class ScreenGL//
         frame.setVisible(true);
         canvas.requestFocusInWindow();
     }
-    
-    /*
+
+	/*
      * Initialize material property, light source, lighting model, and depth
      * buffer.
      */
@@ -251,22 +256,88 @@ public class ScreenGL//
         //
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         //
-    	gl.glMatrixMode(GL2.GL_MODELVIEW);
+        Scene scene = SceneController.getInstance().getScene();
+        if (scene != null) {
+        	Camera camera = scene.getCamera();
+        	Light light = scene.getLight();
+            if (camera != null) {
+            	gl.glMatrixMode(GL2.GL_PROJECTION);
+                gl.glLoadIdentity();
+                glu.gluPerspective(camera.getFovy(), camera.getAspect(), 
+                		camera.getNear(), camera.getFar());
+                gl.glMatrixMode(GL2.GL_MODELVIEW);
+                
+            	gl.glMatrixMode(GL2.GL_MODELVIEW);
+            }
+            if (light != null) {
+            	float[] mat_shininess = new float[] {light.getN()};
+        		//
+        		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, light.getpL(), 0);
+        		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, light.getiAmb(), 0);
+        		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, light.getiDiffuse(), 0);
+        		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, light.getiSpecular(), 0);
+        		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, light.getmAmb(), 0);
+        		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, light.getmDiffuse(), 0);
+                gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, light.getmSpecular(), 0);
+                gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, light.getmEmissive(), 0);
+                gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, mat_shininess, 0);
+                
+            }
+        }
+        //
     	calcXMov();calcZMov();
     	calcRotation();
     	gl.glLoadIdentity();
     	glu.gluLookAt(eyex, eyey, eyez, centerx, 
     			centery, centerz, upx, upy, upz);
     	//
-        createObject();
+        drawObjects();
         gl.glFlush();
-        System.out.println("Camera: \nEye = ("+eyex+", "+eyey+", "+eyez+")\n"+
-        					"Center = ("+centerx+", "+centery+", "+centerz+
-        					")\n"+
-        					"Up Vector = ["+upx+", "+upy+", "+upz+")\n\n");
     }
 
-	private void createObject() {
+	protected void loadCamera() {
+		Scene scene = SceneController.getInstance().getScene();
+		if (scene == null) {
+			return;
+		}
+		Camera camera = scene.getCamera();
+		if (camera == null) {
+			return;
+		}
+		eyex = camera.getFocus().getCoord(0);
+		eyey = camera.getFocus().getCoord(1);
+		eyez = camera.getFocus().getCoord(2);
+		//
+		centerx = eyex+camera.getN().get(0);
+		centery = eyey+camera.getN().get(1);
+		centerz = eyez+camera.getN().get(2);
+		//
+		upx = camera.getV().get(0);
+		upy = camera.getV().get(1);
+		upz = camera.getV().get(2);
+		
+		System.out.println("Camera: \nEye = ("+eyex+", "+eyey+", "+eyez+")\n"+
+				"Center = ("+centerx+", "+centery+", "+centerz+
+				")\n"+
+				"Up Vector = ["+upx+", "+upy+", "+upz+")\n\n");
+		
+	}
+	
+    
+    protected void loadLight() {
+    	Scene scene = SceneController.getInstance().getScene();
+		if (scene == null) {
+			return;
+		}
+		Light light = scene.getLight();
+		if (light == null) {
+			return;
+		}
+		
+		
+	}
+
+	private void drawObjects() {
 
         gl.glColor4d(1, 0, 0, 0);
 		ArrayList<Triangle> triangles = 

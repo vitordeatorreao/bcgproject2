@@ -1,6 +1,5 @@
 package com.gmail.vitortorreao.scene;
 
-import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -256,45 +255,24 @@ public class SceneController {
 			throw new NonConformantSceneFile("Expected to find more "
 					+ "camera parameters, but found only 3");
 		}
-		double d;
+		args = line.split(" ");
+		if (args.length != 4) {
+			bfr.close();
+			throw new NonConformantSceneFile("Expected 4 double-point "
+					+ "precision values, but found \""+line+"\"");
+		}
+		double fovy, aspect, near, far;
 		try {
-			d = Double.valueOf(line);
+			fovy	= Double.valueOf(args[0]);
+			aspect	= Double.valueOf(args[1]);
+			near	= Double.valueOf(args[2]);
+			far		= Double.valueOf(args[3]);
 		} catch (Exception e) {
 			bfr.close();
-			throw new NonConformantSceneFile("Expected a double-point "
-					+ "precision value, but found \""+line+"\"");
+			throw new NonConformantSceneFile("Expected 4 double-point "
+					+ "precision values, but found \""+line+"\"");
 		}
-		
-		line = bfr.readLine();
-		if (line == null) {
-			bfr.close();
-			throw new NonConformantSceneFile("Expected to find more "
-					+ "camera parameters, but found only 4");
-		}
-		double hx;
-		try {
-			hx = Double.valueOf(line);
-		} catch (Exception e) {
-			bfr.close();
-			throw new NonConformantSceneFile("Expected a double-point "
-					+ "precision value, but found \""+line+"\"");
-		}
-		
-		line = bfr.readLine();
-		if (line == null) {
-			bfr.close();
-			throw new NonConformantSceneFile("Expected to find more "
-					+ "camera parameters, but found only 5");
-		}
-		double hy;
-		try {
-			hy = Double.valueOf(line);
-		} catch (Exception e) {
-			bfr.close();
-			throw new NonConformantSceneFile("Expected a double-point "
-					+ "precision value, but found \""+line+"\"");
-		}
-		this.scene.setCamera(new Camera(C, N, V, d, hx, hy));
+		this.scene.setCamera(new Camera(C, N, V, fovy, aspect, near, far));
 		System.out.println("Camera = "+scene.getCamera().toString());
 		
 		line = bfr.readLine();
@@ -306,122 +284,13 @@ public class SceneController {
 		args = line.split(" ");
 		if (args.length == 3) {
 			//Load Light
-			//In the current line, we find the environmental light color
-			Color iAmb;
-			int r,g,b;
+			//In the current line, we find the light's position
+			float[] pls;
 			try {
-				r = Integer.parseInt(args[0]);
-				g = Integer.parseInt(args[1]);
-				b = Integer.parseInt(args[2]);
-			} catch (NumberFormatException e) {
-				throw new NonConformantSceneFile("Expected three integers,"
-						+ " but found \""+line+"\"");
-			}
-			iAmb = new Color(r, g, b);
-			
-			//Now get iL, the light color
-			line = bfr.readLine();
-			if (line == null) {
-				throw new NonConformantSceneFile("Expected Light Color"
-						+ " specification, but found nothing");
-			}
-			args = line.split(" ");
-			if (args.length != 3) {
-				throw new NonConformantSceneFile("Expected Light Color"
-						+ " specification, but found \""+line+"\"");
-			}
-			Color iL;
-			try {
-				r = Integer.parseInt(args[0]);
-				g = Integer.parseInt(args[1]);
-				b = Integer.parseInt(args[2]);
-			} catch (NumberFormatException e) {
-				throw new NonConformantSceneFile("Expected three integers,"
-						+ " but found \""+line+"\"");
-			}
-			iL = new Color(r, g, b);
-			
-			//Now get Ka, Ks, eta in a single line
-			line = bfr.readLine();
-			if (line == null) {
-				throw new NonConformantSceneFile("Expected the "
-						+ "environmental reflection coefficient, "
-						+ "specular reflection coefficient and the "
-						+ "specular size"
-						+ " specifications, but found nothing");
-			}
-			args = line.split(" ");
-			double ka, ks, eta;
-			try {
-				ka = Double.valueOf(args[0]);
-				ks = Double.valueOf(args[1]);
-				eta = Double.valueOf(args[2]);
-			} catch (Exception e) {
-				throw new NonConformantSceneFile("Expected three double-point "
-						+ "precision values for Ka, Ks and eta,"
-						+ " but found \""+line+"\"");
-			}
-			
-			//Now get Kd
-			line = bfr.readLine();
-			if (line == null) {
-				throw new NonConformantSceneFile("Expected Diffuse "
-						+ "reflection coefficient"
-						+ " specification, but found nothing");
-			}
-			args = line.split(" ");
-			double[] dds;
-			try {
-				dds = new double[] {
-					Double.valueOf(args[0]),
-					Double.valueOf(args[1]),
-					Double.valueOf(args[2])
-				};
-			} catch (Exception e) {
-				throw new NonConformantSceneFile("Expected three double-point "
-						+ "precision values for Diffuse reflection coefficient"
-						+ " vector,"
-						+ " but found \""+line+"\"");
-			}
-			Vector kD = new Vector(dds);
-			
-			//Now get Od
-			line = bfr.readLine();
-			if (line == null) {
-				throw new NonConformantSceneFile("Expected surface "
-						+ "diffuse color"
-						+ " specification, but found nothing");
-			}
-			args = line.split(" ");
-			double[] ods;
-			try {
-				ods = new double[] {
-					Double.valueOf(args[0]),
-					Double.valueOf(args[1]),
-					Double.valueOf(args[2])
-				};
-			} catch (Exception e) {
-				throw new NonConformantSceneFile("Expected three double-point "
-						+ "precision values for surface diffuse color"
-						+ " vector,"
-						+ " but found \""+line+"\"");
-			}
-			Vector oD = new Vector(ods);
-			
-			//Now get Pl
-			line = bfr.readLine();
-			if (line == null) {
-				throw new NonConformantSceneFile("Expected surface "
-						+ "diffuse color"
-						+ " specification, but found nothing");
-			}
-			args = line.split(" ");
-			double[] pls;
-			try {
-				pls = new double[] {
-					Double.valueOf(args[0]),
-					Double.valueOf(args[1]),
-					Double.valueOf(args[2])
+				pls = new float[] {
+					Float.parseFloat(args[0]),
+					Float.parseFloat(args[1]),
+					Float.parseFloat(args[2])
 				};
 			} catch (Exception e) {
 				throw new NonConformantSceneFile("Expected three double-point "
@@ -429,10 +298,172 @@ public class SceneController {
 						+ " vertex,"
 						+ " but found \""+line+"\"");
 			}
-			Vertex pl = new Vertex(pls);
+			//Now get the iAmb, the light environment color
+			line = bfr.readLine();
+			if (line == null) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found nothing");
+			}
+			args = line.split(" ");
+			float[] iAmb = new float[4];
+			try {
+				iAmb[0] = Float.parseFloat(args[0]);
+				iAmb[1] = Float.parseFloat(args[1]);
+				iAmb[2] = Float.parseFloat(args[2]);
+				iAmb[3] = Float.parseFloat(args[3]);
+			} catch (NumberFormatException e) {
+				throw new NonConformantSceneFile("Expected four floats,"
+						+ " but found \""+line+"\"");
+			}
+			//Now get iDiffuse, the light diffuse color
+			line = bfr.readLine();
+			if (line == null) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found nothing");
+			}
+			args = line.split(" ");
+			if (args.length != 4) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found \""+line+"\"");
+			}
+			float[] iDiffuse = new float[4];
+			try {
+				iDiffuse[0] = Float.parseFloat(args[0]);
+				iDiffuse[1] = Float.parseFloat(args[1]);
+				iDiffuse[2] = Float.parseFloat(args[2]);
+				iDiffuse[3] = Float.parseFloat(args[3]);
+			} catch (NumberFormatException e) {
+				throw new NonConformantSceneFile("Expected four floats,"
+						+ " but found \""+line+"\"");
+			}
+			//
+			//Now get iSpecular, the light specular color
+			line = bfr.readLine();
+			if (line == null) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found nothing");
+			}
+			args = line.split(" ");
+			if (args.length != 4) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found \""+line+"\"");
+			}
+			float[] iSpecular = new float[4];
+			try {
+				iSpecular[0] = Float.parseFloat(args[0]);
+				iSpecular[1] = Float.parseFloat(args[1]);
+				iSpecular[2] = Float.parseFloat(args[2]);
+				iSpecular[3] = Float.parseFloat(args[3]);
+			} catch (NumberFormatException e) {
+				throw new NonConformantSceneFile("Expected four floats,"
+						+ " but found \""+line+"\"");
+			}
+			//
+			//Now get mAmb, the material environment color
+			line = bfr.readLine();
+			if (line == null) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found nothing");
+			}
+			args = line.split(" ");
+			if (args.length != 4) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found \""+line+"\"");
+			}
+			float[] mAmb = new float[4];
+			try {
+				mAmb[0] = Float.parseFloat(args[0]);
+				mAmb[1] = Float.parseFloat(args[1]);
+				mAmb[2] = Float.parseFloat(args[2]);
+				mAmb[3] = Float.parseFloat(args[3]);
+			} catch (NumberFormatException e) {
+				throw new NonConformantSceneFile("Expected four floats,"
+						+ " but found \""+line+"\"");
+			}
+			//
+			//Now get mDiffuse, the material diffuse color
+			line = bfr.readLine();
+			if (line == null) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found nothing");
+			}
+			args = line.split(" ");
+			if (args.length != 4) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found \""+line+"\"");
+			}
+			float[] mDiffuse = new float[4];
+			try {
+				mDiffuse[0] = Float.parseFloat(args[0]);
+				mDiffuse[1] = Float.parseFloat(args[1]);
+				mDiffuse[2] = Float.parseFloat(args[2]);
+				mDiffuse[3] = Float.parseFloat(args[3]);
+			} catch (NumberFormatException e) {
+				throw new NonConformantSceneFile("Expected four floats,"
+						+ " but found \""+line+"\"");
+			}
+			//
+			//Now get mSpecular, the material specular color
+			line = bfr.readLine();
+			if (line == null) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found nothing");
+			}
+			args = line.split(" ");
+			if (args.length != 4) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found \""+line+"\"");
+			}
+			float[] mSpecular = new float[4];
+			try {
+				mSpecular[0] = Float.parseFloat(args[0]);
+				mSpecular[1] = Float.parseFloat(args[1]);
+				mSpecular[2] = Float.parseFloat(args[2]);
+				mSpecular[3] = Float.parseFloat(args[3]);
+			} catch (NumberFormatException e) {
+				throw new NonConformantSceneFile("Expected four floats,"
+						+ " but found \""+line+"\"");
+			}
+			//
+			//Now get mEmissive, the material emissive color
+			line = bfr.readLine();
+			if (line == null) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found nothing");
+			}
+			args = line.split(" ");
+			if (args.length != 4) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found \""+line+"\"");
+			}
+			float[] mEmissive = new float[4];
+			try {
+				mEmissive[0] = Float.parseFloat(args[0]);
+				mEmissive[1] = Float.parseFloat(args[1]);
+				mEmissive[2] = Float.parseFloat(args[2]);
+				mEmissive[3] = Float.parseFloat(args[3]);
+			} catch (NumberFormatException e) {
+				throw new NonConformantSceneFile("Expected four floats,"
+						+ " but found \""+line+"\"");
+			}
+			//
+			//Now get eta, the Featured specular size
+			line = bfr.readLine();
+			if (line == null) {
+				throw new NonConformantSceneFile("Expected Light Color"
+						+ " specification, but found nothing");
+			}
+			float eta;
+			try {
+				eta = Float.parseFloat(line);
+			} catch (NumberFormatException e) {
+				throw new NonConformantSceneFile("Expected a double "
+						+ "precision-point value,"
+						+ " but found \""+line+"\"");
+			}
 			
-			this.scene.setLight(new Light(iAmb, iL, ka, ks, eta, kD, oD, pl));
-			System.out.println("Light = "+this.scene.getLight().toString());
+			this.scene.setLight(new Light(iAmb, iDiffuse, iSpecular, mAmb, 
+					mDiffuse, mSpecular, mEmissive, eta, pls));
 			
 		} else if (args.length == 2) {
 			loadObjects(line);

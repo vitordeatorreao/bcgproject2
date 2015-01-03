@@ -19,60 +19,46 @@ import com.gmail.vitortorreao.math.Vertex;
  * @since 1.0
  */
 public class Camera {
-	
+
 	private Vertex focus;
 	private Vector U, V, N;
+	private double fovy, aspect, near, far;
 	private double d, hx, hy;
-	
+
 	private Matrix toViewBase;
 	private Matrix toCaninocalBase;
-	
-	/**
-	 * Constructor of the <code>Camera</code> class.
-	 * @param C		A <code>Vertex</code> representing the
-	 * 				focus of the <code>Camera</code> 
-	 * @param N		The N <code>Vector</code> of the <code>Camera</code>
-	 * @param V		The V <code>Vector</code> of the <code>Camera</code>
-	 * @param d		The distance between the focus and the view plane	
-	 * @param hx	Half of the view plane's width
-	 * @param hy	Half of the view plane's height
-	 */
+
 	public Camera(Vertex C, Vector N, Vector V, 
-			double d, double hx, double hy) {
-		
+			double fovy, double aspect, double near, double far) {
 		if (V.getDimension() != N.getDimension()) {
 			throw new IllegalArgumentException("U, V and N vectors "
 					+ "must be of same dimension");
 		}
-		
-		this.d	=	d;
-		this.hx	=	hx;
-		this.hy	=	hy;
-		
+
 		this.focus = C;
-		
+
 		//Check if V is orthogonalized with N
 		if (V.scalarMult(N) != 0) {
 			//It is not
 			double k = V.scalarMult(N)/N.scalarMult(N);
 			V = V.sub(N.mult(k));
 		}
-		
+
 		//Normalize both vectors
 		if (V.getNorm() != 1.0) {
 			V = V.normalize();
 		}
-		
+
 		if (N.getNorm() != 1.0) {
 			N = N.normalize();
 		}
-		
+
 		//Calculate U
 		// U = N x V
 		this.U = N.vectorProduct(V);
 		this.V = V;
 		this.N = N;
-		
+
 		//Calculate change base matrices
 		double[] ds = new double[this.V.getDimension()*3];
 		Vector[] vs = {U, V, N};
@@ -86,6 +72,72 @@ public class Camera {
 		this.toViewBase = new Matrix(ds, vs.length, this.V.getDimension());
 		this.toCaninocalBase = this.toViewBase.transpose();
 		
+		this.aspect	= aspect;
+		this.near	= near;
+		this.far	= far;
+		this.fovy	= fovy;
+
+	}
+
+	/**
+	 * Constructor of the <code>Camera</code> class.
+	 * @param C		A <code>Vertex</code> representing the
+	 * 				focus of the <code>Camera</code> 
+	 * @param N		The N <code>Vector</code> of the <code>Camera</code>
+	 * @param V		The V <code>Vector</code> of the <code>Camera</code>
+	 * @param d		The distance between the focus and the view plane	
+	 * @param hx	Half of the view plane's width
+	 * @param hy	Half of the view plane's height
+	 */
+	public Camera(Vertex C, Vector N, Vector V, 
+			double d, double hx, double hy) {
+
+		if (V.getDimension() != N.getDimension()) {
+			throw new IllegalArgumentException("U, V and N vectors "
+					+ "must be of same dimension");
+		}
+
+		this.d	=	d;
+		this.hx	=	hx;
+		this.hy	=	hy;
+
+		this.focus = C;
+
+		//Check if V is orthogonalized with N
+		if (V.scalarMult(N) != 0) {
+			//It is not
+			double k = V.scalarMult(N)/N.scalarMult(N);
+			V = V.sub(N.mult(k));
+		}
+
+		//Normalize both vectors
+		if (V.getNorm() != 1.0) {
+			V = V.normalize();
+		}
+
+		if (N.getNorm() != 1.0) {
+			N = N.normalize();
+		}
+
+		//Calculate U
+		// U = N x V
+		this.U = N.vectorProduct(V);
+		this.V = V;
+		this.N = N;
+
+		//Calculate change base matrices
+		double[] ds = new double[this.V.getDimension()*3];
+		Vector[] vs = {U, V, N};
+		int i = 0;
+		for (Vector v : vs) {
+			for (int j = 0; j < v.getDimension(); j++) {
+				ds[i] = v.get(j);
+				i++;
+			}
+		}
+		this.toViewBase = new Matrix(ds, vs.length, this.V.getDimension());
+		this.toCaninocalBase = this.toViewBase.transpose();
+
 	}
 
 	/**
@@ -136,7 +188,7 @@ public class Camera {
 	public double getHx() {
 		return hx;
 	}
-	
+
 	/**
 	 * Returns the Hy of the <code>Camera</code>
 	 * @return half of the view plane's height
@@ -153,7 +205,7 @@ public class Camera {
 	public Matrix getToViewBase() {
 		return toViewBase;
 	}
-	
+
 	/**
 	 * Returns the <code>Matrix</code> to change base from view, 
 	 * based on this <code>Camera</code>, to canonical.
@@ -162,7 +214,39 @@ public class Camera {
 	public Matrix getToCaninocalBase() {
 		return toCaninocalBase;
 	}
-	
+
+	public double getFovy() {
+		return fovy;
+	}
+
+	public void setFovy(double fovy) {
+		this.fovy = fovy;
+	}
+
+	public double getAspect() {
+		return aspect;
+	}
+
+	public void setAspect(double aspect) {
+		this.aspect = aspect;
+	}
+
+	public double getNear() {
+		return near;
+	}
+
+	public void setNear(double near) {
+		this.near = near;
+	}
+
+	public double getFar() {
+		return far;
+	}
+
+	public void setFar(double far) {
+		this.far = far;
+	}
+
 	@Override
 	public String toString() {
 		String s = "{\n";
@@ -176,7 +260,7 @@ public class Camera {
 		s += "}\n";
 		return s;
 	}
-	
+
 	/**
 	 * This function is only used for testing
 	 * @param args
@@ -187,19 +271,19 @@ public class Camera {
 		Vertex C = new Vertex(new double[]{1.5, 2.5, 3.5});
 		V = new Vector(new double[]{0, 0, 1});
 		N = new Vector(new double[]{-Math.sqrt(2)/2, Math.sqrt(2)/2, 0});
-		
+
 		d = 5.5;
 		hx = 320;
 		hy = 240;
-		
+
 		Camera c = new Camera(C, N, V, d, hx, hy);
-		
+
 		System.out.println("Camera = "+c);
-		
+
 		System.out.println("Matrix from canonical to View: "+c.getToViewBase());
-		
+
 		System.out.println("Matrix from view to canonical: "+c.getToCaninocalBase());
-		
+
 	}
 
 }

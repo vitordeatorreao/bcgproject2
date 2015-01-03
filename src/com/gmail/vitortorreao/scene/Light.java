@@ -3,7 +3,6 @@ package com.gmail.vitortorreao.scene;
 import java.awt.Color;
 
 import com.gmail.vitortorreao.math.Vector;
-import com.gmail.vitortorreao.math.Vertex;
 
 /**
  * This class implements a Light Element.
@@ -25,7 +24,7 @@ public class Light {
 	/**
 	 * Environment Light's Color
 	 */
-	private Color iAmb;
+	private float[] iAmb;
 	
 	/**
 	 * Light's color
@@ -46,7 +45,7 @@ public class Light {
 	 * Featured specular size
 	 * A.K.A. Eta
 	 */
-	private double n;
+	private float n;
 	
 	/**
 	 * Diffuse reflection coefficient
@@ -61,10 +60,55 @@ public class Light {
 	/**
 	 * Origin of Light
 	 */
-	private Vertex pL;
+	private float[] pL;
 	
-	public Light(Color iAmb, Color iLocal, double kA, 
-			double kS, double n, Vector kD, Vector oD, Vertex pL) {
+	/**
+	 * Light's diffuse color
+	 */
+	private float[] iDiffuse;
+	
+	/**
+	 * Light's specular color
+	 */
+	private float[] iSpecular;
+	
+	/**
+	 * Material's environment color
+	 */
+	private float[] mAmb;
+	
+	/**
+	 * Material's diffuse color
+	 */
+	private float[] mDiffuse;
+	
+	/**
+	 * Material's specular color
+	 */
+	private float[] mSpecular;
+	
+	/**
+	 * Material's emissive color
+	 */
+	private float[] mEmissive;
+	
+	public Light(float[] iAmb, float[] iDiffuse, float[] iSpecular,
+			float[] mAmb, float[] mDiffuse, float[] mSpecular, float[] mEmissive,
+			float eta, float[] pL) {
+		
+		this.iAmb		= iAmb;
+		this.pL			= pL;
+		this.n			= eta;
+		this.iDiffuse	= iDiffuse;
+		this.iSpecular	= iSpecular;
+		this.mAmb		= mAmb;
+		this.mDiffuse	= mDiffuse;
+		this.mSpecular	= mSpecular;
+		this.mEmissive	= mEmissive;
+	}
+	
+	public Light(float[] iAmb, Color iLocal, double kA, 
+			double kS, float n, Vector kD, Vector oD, float[] pL) {
 		this.iAmb	= iAmb;
 		this.iL = iLocal;
 		this.kA		= kA;
@@ -75,7 +119,7 @@ public class Light {
 		this.pL		= pL;
 	}
 
-	public Color getiAmb() {
+	public float[] getiAmb() {
 		return iAmb;
 	}
 
@@ -91,7 +135,7 @@ public class Light {
 		return kS;
 	}
 
-	public double getN() {
+	public float getN() {
 		return n;
 	}
 
@@ -103,10 +147,58 @@ public class Light {
 		return oD;
 	}
 
-	public Vertex getpL() {
+	public float[] getpL() {
 		return pL;
 	}
 	
+	public float[] getiDiffuse() {
+		return iDiffuse;
+	}
+
+	public void setiDiffuse(float[] iDiffuse) {
+		this.iDiffuse = iDiffuse;
+	}
+
+	public float[] getiSpecular() {
+		return iSpecular;
+	}
+
+	public void setiSpecular(float[] iSpecular) {
+		this.iSpecular = iSpecular;
+	}
+
+	public float[] getmAmb() {
+		return mAmb;
+	}
+
+	public void setmAmb(float[] mAmb) {
+		this.mAmb = mAmb;
+	}
+
+	public float[] getmDiffuse() {
+		return mDiffuse;
+	}
+
+	public void setmDiffuse(float[] mDiffuse) {
+		this.mDiffuse = mDiffuse;
+	}
+
+	public float[] getmSpecular() {
+		return mSpecular;
+	}
+
+	public void setmSpecular(float[] mSpecular) {
+		this.mSpecular = mSpecular;
+	}
+
+	public float[] getmEmissive() {
+		return mEmissive;
+	}
+
+	public void setmEmissive(float[] mEmissive) {
+		this.mEmissive = mEmissive;
+	}
+
 	public String toString() {
 		String s = "{\n";
 		s += "Iamb = "+this.iAmb.toString()+"\n";
